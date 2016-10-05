@@ -6,34 +6,39 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
-using System.Web.Http.ModelBinding;
 using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
-using Microsoft.Owin.Security.OAuth;
+using System.Net;
+using System.Net.Mail;
+using System.Linq;
 using MSTaxis.WebApi.Models;
-using MSTaxis.WebApi.Providers;
-using MSTaxis.WebApi.Results;
+using MSTaxis.WebApi.App_GlobalResources;
 
 namespace MSTaxis.WebApi.Controllers
 {
-    [Authorize]
+    //TODO: Activat Autoriza for request
+    //[Authorize]
     [RoutePrefix("api/Account")]
     public class AccountController : ApiController
     {
+        //TODO: Activate Log
+        //private static readonly ILog Log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private const string LocalLoginProvider = "Local";
         private ApplicationUserManager _userManager;
+        private ApplicationRoleManager _roleManager;
 
         public AccountController()
         {
         }
 
         public AccountController(ApplicationUserManager userManager,
+            ApplicationRoleManager roleManager,
             ISecureDataFormat<AuthenticationTicket> accessTokenFormat)
         {
             UserManager = userManager;
+            RoleManager = roleManager;
             AccessTokenFormat = accessTokenFormat;
         }
 
@@ -46,6 +51,18 @@ namespace MSTaxis.WebApi.Controllers
             private set
             {
                 _userManager = value;
+            }
+        }
+
+        public ApplicationRoleManager RoleManager
+        {
+            get
+            {
+                return _roleManager ?? Request.GetOwinContext().Get<ApplicationRoleManager>();
+            }
+            set
+            {
+                _roleManager = value;
             }
         }
 
@@ -78,7 +95,7 @@ namespace MSTaxis.WebApi.Controllers
         [Route("ManageInfo")]
         public async Task<ManageInfoViewModel> GetManageInfo(string returnUrl, bool generateState = false)
         {
-            IdentityUser user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
+            ApplicationUser user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
 
             if (user == null)
             {
@@ -87,7 +104,7 @@ namespace MSTaxis.WebApi.Controllers
 
             List<UserLoginInfoViewModel> logins = new List<UserLoginInfoViewModel>();
 
-            foreach (IdentityUserLogin linkedAccount in user.Logins)
+            foreach (ApplicationUserLogin linkedAccount in user.Logins)
             {
                 logins.Add(new UserLoginInfoViewModel
                 {
@@ -114,18 +131,25 @@ namespace MSTaxis.WebApi.Controllers
             };
         }
 
+        [HttpPost]
+        [Route("ChangesRolUser")]
+        public async Task<IHttpActionResult> ChangesRolUser(ChangeRolUserBindingModel model)
+        {
+            var user = await UserManager.FindByIdAsync(model.UserId);
+            await UserManager.RemoveFromRolesAsync(model.UserId, UserManager.GetRoles(model.UserId).ToArray());
+            await UserManager.AddToRoleAsync(model.UserId, model.RoleName);
+            await UserManager.UpdateAsync(user);
+
+            return Ok();
+        }
+
         // POST api/Account/ChangePassword
         [Route("ChangePassword")]
         public async Task<IHttpActionResult> ChangePassword(ChangePasswordBindingModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             IdentityResult result = await UserManager.ChangePasswordAsync(User.Identity.GetUserId(), model.OldPassword,
-                model.NewPassword);
-            
+                 model.NewPassword);
+
             if (!result.Succeeded)
             {
                 return GetErrorResult(result);
@@ -138,10 +162,6 @@ namespace MSTaxis.WebApi.Controllers
         [Route("SetPassword")]
         public async Task<IHttpActionResult> SetPassword(SetPasswordBindingModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             IdentityResult result = await UserManager.AddPasswordAsync(User.Identity.GetUserId(), model.NewPassword);
 
@@ -157,11 +177,6 @@ namespace MSTaxis.WebApi.Controllers
         [Route("AddExternalLogin")]
         public async Task<IHttpActionResult> AddExternalLogin(AddExternalLoginBindingModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             Authentication.SignOut(DefaultAuthenticationTypes.ExternalCookie);
 
             AuthenticationTicket ticket = AccessTokenFormat.Unprotect(model.ExternalAccessToken);
@@ -195,11 +210,6 @@ namespace MSTaxis.WebApi.Controllers
         [Route("RemoveLogin")]
         public async Task<IHttpActionResult> RemoveLogin(RemoveLoginBindingModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             IdentityResult result;
 
             if (model.LoginProvider == LocalLoginProvider)
@@ -221,63 +231,64 @@ namespace MSTaxis.WebApi.Controllers
         }
 
         // GET api/Account/ExternalLogin
-        [OverrideAuthentication]
-        [HostAuthentication(DefaultAuthenticationTypes.ExternalCookie)]
-        [AllowAnonymous]
-        [Route("ExternalLogin", Name = "ExternalLogin")]
-        public async Task<IHttpActionResult> GetExternalLogin(string provider, string error = null)
-        {
-            if (error != null)
-            {
-                return Redirect(Url.Content("~/") + "#error=" + Uri.EscapeDataString(error));
-            }
+        //[OverrideAuthentication]
+        //[HostAuthentication(DefaultAuthenticationTypes.ExternalCookie)]
+        //[AllowAnonymous]
+        //[Route("ExternalLogin", Name = "ExternalLogin")]
+        //public async Task<IHttpActionResult> GetExternalLogin(string provider, string error = null)
+        //{
+        //    if (error != null)
+        //    {
+        //        return Redirect(Url.Content("~/") + "#error=" + Uri.EscapeDataString(error));
+        //    }
 
-            if (!User.Identity.IsAuthenticated)
-            {
-                return new ChallengeResult(provider, this);
-            }
+        //    if (!User.Identity.IsAuthenticated)
+        //    {
+        //        return new ChallengeResult(provider, this);
+        //    }
 
-            ExternalLoginData externalLogin = ExternalLoginData.FromIdentity(User.Identity as ClaimsIdentity);
+        //    ExternalLoginData externalLogin = ExternalLoginData.FromIdentity(User.Identity as ClaimsIdentity);
 
-            if (externalLogin == null)
-            {
-                return InternalServerError();
-            }
+        //    if (externalLogin == null)
+        //    {
+        //        return InternalServerError();
+        //    }
 
-            if (externalLogin.LoginProvider != provider)
-            {
-                Authentication.SignOut(DefaultAuthenticationTypes.ExternalCookie);
-                return new ChallengeResult(provider, this);
-            }
+        //    if (externalLogin.LoginProvider != provider)
+        //    {
+        //        Authentication.SignOut(DefaultAuthenticationTypes.ExternalCookie);
+        //        return new ChallengeResult(provider, this);
+        //    }
 
-            ApplicationUser user = await UserManager.FindAsync(new UserLoginInfo(externalLogin.LoginProvider,
-                externalLogin.ProviderKey));
+        //    ApplicationUser user = await UserManager.FindAsync(new UserLoginInfo(externalLogin.LoginProvider,
+        //        externalLogin.ProviderKey));
 
-            bool hasRegistered = user != null;
+        //    bool hasRegistered = user != null;
 
-            if (hasRegistered)
-            {
-                Authentication.SignOut(DefaultAuthenticationTypes.ExternalCookie);
-                
-                 ClaimsIdentity oAuthIdentity = await user.GenerateUserIdentityAsync(UserManager,
-                    OAuthDefaults.AuthenticationType);
-                ClaimsIdentity cookieIdentity = await user.GenerateUserIdentityAsync(UserManager,
-                    CookieAuthenticationDefaults.AuthenticationType);
+        //    if (hasRegistered)
+        //    {
+        //        Authentication.SignOut(DefaultAuthenticationTypes.ExternalCookie);
 
-                AuthenticationProperties properties = ApplicationOAuthProvider.CreateProperties(user.UserName);
-                Authentication.SignIn(properties, oAuthIdentity, cookieIdentity);
-            }
-            else
-            {
-                IEnumerable<Claim> claims = externalLogin.GetClaims();
-                ClaimsIdentity identity = new ClaimsIdentity(claims, OAuthDefaults.AuthenticationType);
-                Authentication.SignIn(identity);
-            }
+        //        ClaimsIdentity oAuthIdentity = await user.GenerateUserIdentityAsync(UserManager,
+        //           OAuthDefaults.AuthenticationType);
+        //        ClaimsIdentity cookieIdentity = await user.GenerateUserIdentityAsync(UserManager,
+        //            CookieAuthenticationDefaults.AuthenticationType);
 
-            return Ok();
-        }
+        //        AuthenticationProperties properties = ApplicationOAuthProvider.CreateProperties(user.UserName);
+        //        Authentication.SignIn(properties, oAuthIdentity, cookieIdentity);
+        //    }
+        //    else
+        //    {
+        //        IEnumerable<Claim> claims = externalLogin.GetClaims();
+        //        ClaimsIdentity identity = new ClaimsIdentity(claims, OAuthDefaults.AuthenticationType);
+        //        Authentication.SignIn(identity);
+        //    }
+
+        //    return Ok();
+        //}
 
         // GET api/Account/ExternalLogins?returnUrl=%2F&generateState=true
+
         [AllowAnonymous]
         [Route("ExternalLogins")]
         public IEnumerable<ExternalLoginViewModel> GetExternalLogins(string returnUrl, bool generateState = false)
@@ -319,22 +330,42 @@ namespace MSTaxis.WebApi.Controllers
         }
 
         // POST api/Account/Register
-        [AllowAnonymous]
+        //TODO: Alberto Validate Authorize
+        //[Authorize(Roles = "AdminSistema")]
+        //[Authorize(Roles = "AdminSistema")]
+        [AcceptVerbs("GET", "POST")]
         [Route("Register")]
         public async Task<IHttpActionResult> Register(RegisterBindingModel model)
         {
-            if (!ModelState.IsValid)
+            var user = new ApplicationUser()
             {
-                return BadRequest(ModelState);
+                UserName = model.UserName,
+                Email = string.IsNullOrEmpty(model.Email) ? "check@list.com" : model.Email,
+                DocumentType = model.DocumentType,
+                DocumentNumber = model.DocumentNumber,
+                Names = model.Names,
+                Surnames = model.Surnames,
+                Address = model.Address,
+                CellPhone = model.CellPhone,
+                IsActive = true
+            };
+
+            var userResult = await UserManager.CreateAsync(user, model.Password);
+
+            if (userResult.Succeeded)
+            {
+                if (model.RolName != null)
+                {
+                    var rolResult = await UserManager.AddToRoleAsync(user.Id, model.RolName);
+                    if (!rolResult.Succeeded)
+                    {
+                        return GetErrorResult(rolResult);
+                    }
+                }
             }
-
-            var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
-
-            IdentityResult result = await UserManager.CreateAsync(user, model.Password);
-
-            if (!result.Succeeded)
+            else
             {
-                return GetErrorResult(result);
+                return GetErrorResult(userResult);
             }
 
             return Ok();
@@ -346,11 +377,6 @@ namespace MSTaxis.WebApi.Controllers
         [Route("RegisterExternal")]
         public async Task<IHttpActionResult> RegisterExternal(RegisterExternalBindingModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var info = await Authentication.GetExternalLoginInfoAsync();
             if (info == null)
             {
@@ -368,10 +394,65 @@ namespace MSTaxis.WebApi.Controllers
             result = await UserManager.AddLoginAsync(user.Id, info.Login);
             if (!result.Succeeded)
             {
-                return GetErrorResult(result); 
+                return GetErrorResult(result);
             }
             return Ok();
         }
+
+
+        // POST: /Account/ForgotPassword
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("ForgotPassword")]
+        public async Task<IHttpActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            var user = await UserManager.FindByNameAsync(model.UserName);
+            if (user == null)
+            {
+                return Content(HttpStatusCode.NotFound, msgResource.NotFoundUser);
+            }
+
+            // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
+            // Send an email with this link
+            string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
+            var callbackUrl = string.Format("{0}{1}&code={2}", model.UrlResetPassword, user.Id, code);
+            string bodyResetPassword = string.Format("Por Favor, para resetear su password de clic: <a href=\"{0}\">aquí</a>", callbackUrl);
+
+            //TODO: Send Email
+            //try
+            //{
+            //    await SMTPMailerResetPassword.SendEmailResetPasswordAsync(user.Id, "Resetear Password Sistema de Control Vehícular", bodyResetPassword, user.Email);
+            //}
+            //catch (SmtpException ex)
+            //{
+            //    return Content(HttpStatusCode.PreconditionFailed, msgResource.ServerSMTPAutentication);
+            //}
+            return Ok();
+        }
+
+        // POST: /Account/ResetPassword
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IHttpActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            var user = await UserManager.FindByIdAsync(model.UserId);
+
+            if (user == null)
+            {
+                return Content(HttpStatusCode.NotFound, msgResource.NotFoundUser);
+            }
+
+            model.Code = model.Code.Replace(" ", "+");
+            var result = await UserManager.ResetPasswordAsync(user.Id, model.Code, model.Password);
+
+            if (result.Succeeded)
+            {
+                return Ok();
+            }
+
+            return Content(HttpStatusCode.BadRequest, msgResource.BadRequestResetPassword);
+        }
+
 
         protected override void Dispose(bool disposing)
         {

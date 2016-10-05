@@ -1,6 +1,6 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MSTaxis.WebApi.Models
 {
@@ -35,8 +35,8 @@ namespace MSTaxis.WebApi.Models
     public class RegisterBindingModel
     {
         [Required]
-        [Display(Name = "Email")]
-        public string Email { get; set; }
+        [Display(Name = "User name")]
+        public string UserName { get; set; }
 
         [Required]
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
@@ -48,6 +48,39 @@ namespace MSTaxis.WebApi.Models
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
+
+        [Required]
+        [StringLength(30, ErrorMessage = "Max 2 digits")]
+        public string DocumentType { get; set; }
+
+        //TODO: Cambio Document number
+        [Required]
+        [StringLength(30, ErrorMessage = "")]
+        //[Index(IsUnique = true)]
+        public string DocumentNumber { get; set; }
+
+        [Required]
+        [StringLength(100, ErrorMessage = "El mensaje")]
+        public string Names { get; set; }
+
+        [Required]
+        [StringLength(100, ErrorMessage = "Poner mensaje")]
+        public string Surnames { get; set; }
+
+        [EmailAddress]
+        [Display(Name = "Email")]
+        public string Email { get; set; }
+
+        [Display(Name = "Address")]
+        public string Address { get; set; }
+
+        [Display(Name = "CellPhone")]
+        public string CellPhone { get; set; }
+
+        public bool IsActive { get; set; }
+
+        public string RolName { get; set; }
+
     }
 
     public class RegisterExternalBindingModel
@@ -81,4 +114,37 @@ namespace MSTaxis.WebApi.Models
         [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
     }
+
+    public class ForgotPasswordViewModel
+    {
+        [Required]
+        public string UrlResetPassword { get; set; }
+
+        [Required]
+        [Display(Name = "User name")]
+        public string UserName { get; set; }
+    }
+
+    public class ResetPasswordViewModel
+    {
+        [Required]
+        public string UserId { get; set; }
+
+        [Required]
+        [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
+        [DataType(DataType.Password)]
+        [Display(Name = "Password")]
+        public string Password { get; set; }
+
+        public string Code { get; set; }
+    }
+
+    public class ChangeRolUserBindingModel
+    {
+        [Required]
+        public string UserId { get; set; }
+        [Required]
+        public string RoleName { get; set; }
+    }
+
 }
