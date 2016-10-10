@@ -181,3 +181,4 @@ E:\Alberto\JAC\Carlos\MSTaxis\MSTaxis\MSTaxis.WebApi\obj\Debug\MSTaxis.WebApi.Ap
 E:\Alberto\JAC\Carlos\MSTaxis\MSTaxis\MSTaxis.WebApi\obj\Debug\MSTaxis.WebApi.csproj.GenerateResource.Cache
 E:\Alberto\JAC\Carlos\MSTaxis\MSTaxis\MSTaxis.WebApi\obj\Debug\MSTaxis.WebApi.dll
 E:\Alberto\JAC\Carlos\MSTaxis\MSTaxis\MSTaxis.WebApi\obj\Debug\MSTaxis.WebApi.pdb
+E:\Alberto\JAC\Carlos\MSTaxis\MSTaxis\MSTaxis.WebApi\obj\Debug\MSTaxis.WebApi.csprojResolveAssemblyReference.cache
