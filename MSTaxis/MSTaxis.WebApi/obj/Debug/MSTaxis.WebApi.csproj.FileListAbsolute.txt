@@ -182,3 +182,16 @@ E:\Alberto\JAC\Carlos\MSTaxis\MSTaxis\MSTaxis.WebApi\obj\Debug\MSTaxis.WebApi.cs
 E:\Alberto\JAC\Carlos\MSTaxis\MSTaxis\MSTaxis.WebApi\obj\Debug\MSTaxis.WebApi.dll
 E:\Alberto\JAC\Carlos\MSTaxis\MSTaxis\MSTaxis.WebApi\obj\Debug\MSTaxis.WebApi.pdb
 E:\Alberto\JAC\Carlos\MSTaxis\MSTaxis\MSTaxis.WebApi\obj\Debug\MSTaxis.WebApi.csprojResolveAssemblyReference.cache
+E:\Alberto\JAC\Carlos\MSTaxis\MSTaxis\MSTaxis.WebApi\bin\AutoMapper.dll
+E:\Alberto\JAC\Carlos\MSTaxis\MSTaxis\MSTaxis.WebApi\bin\log4net.dll
+E:\Alberto\JAC\Carlos\MSTaxis\MSTaxis\MSTaxis.WebApi\bin\Ninject.dll
+E:\Alberto\JAC\Carlos\MSTaxis\MSTaxis\MSTaxis.WebApi\bin\Ninject.Web.Common.dll
+E:\Alberto\JAC\Carlos\MSTaxis\MSTaxis\MSTaxis.WebApi\bin\Ninject.Web.WebApi.dll
+E:\Alberto\JAC\Carlos\MSTaxis\MSTaxis\MSTaxis.WebApi\bin\Ninject.Web.WebApi.WebHost.dll
+E:\Alberto\JAC\Carlos\MSTaxis\MSTaxis\MSTaxis.WebApi\bin\WebActivatorEx.dll
+E:\Alberto\JAC\Carlos\MSTaxis\MSTaxis\MSTaxis.WebApi\bin\AutoMapper.xml
+E:\Alberto\JAC\Carlos\MSTaxis\MSTaxis\MSTaxis.WebApi\bin\log4net.xml
+E:\Alberto\JAC\Carlos\MSTaxis\MSTaxis\MSTaxis.WebApi\bin\Ninject.xml
+E:\Alberto\JAC\Carlos\MSTaxis\MSTaxis\MSTaxis.WebApi\bin\Ninject.Web.Common.xml
+E:\Alberto\JAC\Carlos\MSTaxis\MSTaxis\MSTaxis.WebApi\bin\Ninject.Web.WebApi.xml
+E:\Alberto\JAC\Carlos\MSTaxis\MSTaxis\MSTaxis.WebApi\bin\Ninject.Web.WebApi.WebHost.xml

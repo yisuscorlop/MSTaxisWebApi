@@ -31,8 +31,21 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -41,7 +54,66 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\AspNetRoles.cs">
+      <DependentUpon>MSTaxisModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\AspNetUserClaims.cs">
+      <DependentUpon>MSTaxisModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\AspNetUserLogins.cs">
+      <DependentUpon>MSTaxisModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\AspNetUsers.cs">
+      <DependentUpon>MSTaxisModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\MSTaxisModel.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MSTaxisModel.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\MSTaxisModel.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MSTaxisModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\MSTaxisModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MSTaxisModel.edmx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MSTaxis.Repository\MSTaxis.Repository.csproj">
+      <Project>{74cfc47d-846e-4eaf-a9d2-ee73c74856c8}</Project>
+      <Name>MSTaxis.Repository</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <EntityDeploy Include="Model\MSTaxisModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>MSTaxisModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <None Include="Model\MSTaxisModel.edmx.diagram">
+      <DependentUpon>MSTaxisModel.edmx</DependentUpon>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Model\MSTaxisModel.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>MSTaxisModel.edmx</DependentUpon>
+      <LastGenOutput>MSTaxisModel.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="Model\MSTaxisModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>MSTaxisModel.edmx</DependentUpon>
+      <LastGenOutput>MSTaxisModel.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
